@@ -3,11 +3,17 @@ from models.medication import Medication
 from models.order import Order
 from models.chatbot import Chatbot
 from models.payment import Payment
+from models.appointment import Appointment
+from models.feedback import Feedback
+from utils.notification_service import send_notification
+from utils.report_generator import generate_report
 
 def main():
-    print("Jambo welcome to Interior Health Console")
+    print("Jambo Welcome to InteriorHealth Console")
     while True:
-        print("\n1. Create User\n2. Search Medications\n3. Track Order\n4. Chatbot Query\n5. Process Payment\n6. Exit")
+        print("\nOptions:")
+        print("1. Create User\n2. Search Medications\n3. Track Order\n4. Chatbot Query\n5. Process Payment")
+        print("6. Schedule Appointment\n7. Submit Feedback\n8. Generate Report\n9. Send Notification\n10. Exit")
         choice = input("Enter your choice: ")
         
         if choice == "1":
@@ -38,11 +44,35 @@ def main():
             Payment.process_payment(user_id, order_id, amount)
         
         elif choice == "6":
+            user_id = input("User ID: ")
+            doctor_name = input("Doctor Name: ")
+            time = input("Appointment Time: ")
+            appointment = Appointment(user_id, doctor_name, time)
+            print(f"Appointment scheduled: {appointment.to_dict()}")
+        
+        elif choice == "7":
+            user_id = input("User ID: ")
+            message = input("Feedback: ")
+            rating = input("Rating (1-5): ")
+            feedback = Feedback(user_id, message, rating)
+            print(f"Feedback submitted: {feedback.to_dict()}")
+        
+        elif choice == "8":
+            report_type = input("Report Type (e.g., orders, feedback): ")
+            content = generate_report(report_type)
+            print(f"Report Generated: {content}")
+        
+        elif choice == "9":
+            user_id = input("User ID: ")
+            message = input("Notification Message: ")
+            send_notification(user_id, message)
+        
+        elif choice == "10":
             print("Exiting...")
             break
         
         else:
-            print("Invalid input. Please try again.")
+            print("Invalid choice. Please try again.")
 
 if __name__ == "__main__":
     main()
