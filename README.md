@@ -1,7 +1,6 @@
-InteriorHealth
-InteriorHealth is an innovative health management platform aimed at providing healthcare services to people in interior regions. It integrates multiple features, including searching and ordering medications, delivery tracking, an AI-powered chatbot for health queries, teleconsultations with doctors, practitioner and admin dashboards, and secure payment processing.
+Interior Health is an innovative health management platform aimed at providing healthcare services to people in interior regions. It integrates multiple features, including searching and ordering medications, delivery tracking, an AI-powered chatbot for health queries, teleconsultations with doctors, practitioner and admin dashboards, and secure payment processing.
 
-It is also my Alx final stretch portfolio project!!
+Yikes it is also my Alx final stretch portfolio project!!
 Features
 General Features
 Search and Order Medications: Users can browse, search for, and order medications easily.
@@ -35,14 +34,9 @@ bash
 Copy code
 pip install -r requirements.txt  
 Configure the Database:
-
-Open the MySQL terminal:
-bash
-Copy code
 mysql -u root
 Create a new database:
 sql
-Copy code
 CREATE DATABASE interior_health;
 Run Database Initialization Script:
 
