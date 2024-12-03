@@ -1,7 +1,8 @@
 import unittest
 import json
 from app import app  
-from db_utils import Database
+from utils.db_utils import Database
+
 
 class TestRoutes(unittest.TestCase):
     @classmethod
