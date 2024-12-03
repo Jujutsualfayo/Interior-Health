@@ -1,6 +1,6 @@
 import unittest
 import json
-from app import app  # Assumes your Flask app is initialized in app.py
+from app import app  
 from db_utils import Database
 
 class TestRoutes(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestRoutes(unittest.TestCase):
     def test_create_order(self):
         """Test creating an order."""
         # Insert a test user and product into the database
-        user_id = Database.create_user("Jane Smith", "jane.smith@example.com", "password", "patient")
+        user_id = Database.create_user("Festus Kip", "festuskip@gmail.com", "password", "patient")
         product_id = Database.create_product("Painkillers", "For headaches", 10.00, 100)
         response = self.client.post('/orders', json={
             "user_id": user_id,
