@@ -16,9 +16,9 @@ class DBUtils:
         """
         try:
             conn = mysql.connector.connect(
-                host="localhost",  # Change to your MySQL host
-                user="root",       # Change to your MySQL username
-                password="",       # Change to your MySQL password
+                host="localhost",  
+                user="root",       
+                password="Alphafemale1",       
                 database="interior_health"  # Change to your database name
             )
             return conn
