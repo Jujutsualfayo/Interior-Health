@@ -3,7 +3,7 @@
 import mysql.connector
 from mysql.connector import errorcode
 
-class DBUtils:
+class Database:
     """Utility class for handling database operations."""
 
     @staticmethod
