@@ -10,7 +10,7 @@ class DatabaseSetup:
             conn = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password="",
+                password="Alphafemale1",
                 database="interior_health"
             )
             return conn
