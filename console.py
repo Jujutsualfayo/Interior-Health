@@ -1,119 +1,97 @@
+#!/usr/bin/python3
+"""
+Interior Health app console a good one
+"""
+
 import cmd
 from models import (
-    User, Product, Order, Payment, Tracking, 
-    ChatbotInteraction, Teleconsultation, Inventory, 
-    DeliveryRoute, DistributionCenter, HealthCampaign
+    User,
+    Product,
+    Order,
+    Payment,
+    Tracking,
+    ChatbotInteraction,
+    Teleconsultation
 )
-from utils.route_optimization import optimize_route
-from utils.ai_chatbot import get_chatbot_response
-from database import session
+from utils.db_utils import DBUtils
 
 
 class InteriorHealthConsole(cmd.Cmd):
-    prompt = "InteriorHealth> "
+    prompt = "(interior_health) "
+    intro = "Welcome to the InteriorHealth App Console. Type help or ? to list commands."
 
-    def do_add_user(self, args):
-        """Add a new user: add_user <name> <email> <password> <phone> <address>"""
+    def do_create_user(self, args):
+        """Create a new user."""
         try:
-            name, email, password, phone, address = args.split()
-            user = User(name=name, email=email, password=password, phone=phone, address=address)
-            session.add(user)
-            session.commit()
-            print("User added successfully.")
-        except ValueError:
-            print("Invalid input. Usage: add_user <name> <email> <password> <phone> <address>")
+            name = input("Enter name: ")
+            email = input("Enter email: ")
+            password = input("Enter password: ")
+            phone = input("Enter phone: ")
+            address = input("Enter address: ")
 
-    def do_add_product(self, args):
-        """Add a new product: add_product <name> <description> <price> <stock>"""
+            query = """
+                INSERT INTO users (name, email, password, phone, address)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+            DBUtils.execute_update(query, (name, email, password, phone, address))
+            print("User created successfully.")
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def do_search_medication(self, args):
+        """Search for a medication by name."""
         try:
-            name, description, price, stock = args.split(maxsplit=3)
-            product = Product(name=name, description=description, price=float(price), stock=int(stock))
-            session.add(product)
-            session.commit()
-            print("Product added successfully.")
-        except ValueError:
-            print("Invalid input. Usage: add_product <name> <description> <price> <stock>")
+            name = input("Enter medication name: ")
+            query = "SELECT * FROM products WHERE name LIKE %s"
+            results = DBUtils.execute_query(query, (f"%{name}%",))
+            for product in results:
+                print(product)
+        except Exception as e:
+            print(f"Error: {e}")
 
-    def do_create_order(self, args):
-        """Create a new order: create_order <user_id> <product_id> <quantity>"""
+    def do_order_medication(self, args):
+        """Create an order for a medication."""
         try:
-            user_id, product_id, quantity = map(int, args.split())
-            order = Order(user_id=user_id, product_id=product_id, quantity=quantity)
-            session.add(order)
-            session.commit()
-            print("Order created successfully.")
-        except ValueError:
-            print("Invalid input. Usage: create_order <user_id> <product_id> <quantity>")
+            user_id = input("Enter user ID: ")
+            product_id = input("Enter product ID: ")
+            quantity = input("Enter quantity: ")
 
-    def do_track_order(self, args):
-        """Track an order: track_order <order_id>"""
+            query = """
+                INSERT INTO orders (user_id, product_id, quantity)
+                VALUES (%s, %s, %s)
+            """
+            DBUtils.execute_update(query, (user_id, product_id, quantity))
+            print("Order placed successfully.")
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def do_view_orders(self, args):
+        """View all orders."""
         try:
-            order_id = int(args)
-            tracking = session.query(Tracking).filter_by(order_id=order_id).first()
-            if tracking:
-                print(f"Order Status: {tracking.status}, Last Updated: {tracking.last_updated}")
-            else:
-                print("Tracking information not found.")
-        except ValueError:
-            print("Invalid input. Usage: track_order <order_id>")
+            query = "SELECT * FROM orders"
+            results = DBUtils.execute_query(query)
+            for order in results:
+                print(order)
+        except Exception as e:
+            print(f"Error: {e}")
 
-    def do_add_inventory(self, args):
-        """Add inventory: add_inventory <name> <stock> <location>"""
+    def do_track_delivery(self, args):
+        """Track the delivery status of an order."""
         try:
-            name, stock, location = args.split(maxsplit=2)
-            inventory = Inventory(name=name, stock=int(stock), location=location)
-            session.add(inventory)
-            session.commit()
-            print("Inventory item added successfully.")
-        except ValueError:
-            print("Invalid input. Usage: add_inventory <name> <stock> <location>")
-
-    def do_manage_routes(self, args):
-        """Manage delivery routes: manage_routes <start> <end> [waypoint1 waypoint2 ...]"""
-        try:
-            args_list = args.split()
-            start, end = args_list[0], args_list[1]
-            waypoints = args_list[2:]
-            optimized_route = optimize_route(start, end, waypoints)
-            print(f"Optimized Route: {optimized_route}")
-        except ValueError:
-            print("Invalid input. Usage: manage_routes <start> <end> [waypoint1 waypoint2 ...]")
-
-    def do_start_chatbot(self, args):
-        """Start a chatbot interaction: start_chatbot"""
-        print("Chatbot started. Type 'exit' to quit.")
-        while True:
-            user_input = input("You: ")
-            if user_input.lower() == 'exit':
-                print("Exiting chatbot.")
-                break
-            response = get_chatbot_response(user_input)
-            print(f"Bot: {response}")
-
-    def do_schedule_teleconsultation(self, args):
-        """Schedule a teleconsultation: schedule_teleconsultation <user_id> <doctor_name> <appointment_time>"""
-        try:
-            user_id, doctor_name, appointment_time = args.split(maxsplit=2)
-            teleconsultation = Teleconsultation(user_id=int(user_id), doctor_name=doctor_name, appointment_time=appointment_time)
-            session.add(teleconsultation)
-            session.commit()
-            print("Teleconsultation scheduled successfully.")
-        except ValueError:
-            print("Invalid input. Usage: schedule_teleconsultation <user_id> <doctor_name> <appointment_time>")
-
-    def do_list_products(self, args):
-        """List all available products: list_products"""
-        products = session.query(Product).all()
-        for product in products:
-            print(f"ID: {product.id}, Name: {product.name}, Price: {product.price}, Stock: {product.stock}")
+            order_id = input("Enter order ID: ")
+            query = "SELECT * FROM tracking WHERE order_id = %s"
+            results = DBUtils.execute_query(query, (order_id,))
+            for tracking in results:
+                print(tracking)
+        except Exception as e:
+            print(f"Error: {e}")
 
     def do_exit(self, args):
         """Exit the console."""
-        print("Goodbye!")
+        print("Exiting InteriorHealth Console. Goodbye!")
         return True
 
 
 if __name__ == "__main__":
-    console = InteriorHealthConsole()
-    console.cmdloop()
+    InteriorHealthConsole().cmdloop()
 
