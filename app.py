@@ -1,29 +1,19 @@
+import os
 from flask import Flask
-from app.routes import (
-    auth,
-    delivery_routes,
-    medication_routes,
-    notifications,
-)
+from dotenv import load_dotenv
 
-def create_app():
-    """Factory to create a Flask app."""
-    app = Flask(__name__)
+# Load environment variables from .env file
+load_dotenv()
 
-    # App configurations
-    app.config['SECRET_KEY'] = 'your_secret_key'
+app = Flask(__name__)
 
-    # Register Blueprints
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(delivery_routes.bp)
-    app.register_blueprint(medication_routes.bp)
-    app.register_blueprint(notifications.bp)
+# App configurations
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_dev_key')
 
-    return app
+@app.route('/')
+def home():
+    return "Welcome to Interior Health!"
 
-# Create an instance of the app
-app = create_app()
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
 
