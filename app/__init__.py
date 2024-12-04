@@ -2,6 +2,8 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 from models.database import db
+from ..models import User, Product, Order, Payment, Tracking, ChatbotInteraction, Teleconsultation
+
 
 # Load environment variables
 load_dotenv()
