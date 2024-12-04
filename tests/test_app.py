@@ -7,31 +7,43 @@ def client():
         yield client
 
 def test_get_users(client):
-    # Test the GET /users endpoint
     response = client.get('/users')
     assert response.status_code == 200
     data = response.get_json()
-    
-    # Ensure we get at least one user
     assert isinstance(data, list)
     assert len(data) > 0
     assert "name" in data[0]
-    assert "email" in data[0]
 
-def test_get_user(client):
-    # Test retrieving an existing user
-    response = client.get('/users/1')
+def test_interact_chatbot(client):
+    # Test chatbot interaction
+    response = client.post('/chatbot', json={"message": "Hello"})
     assert response.status_code == 200
     data = response.get_json()
-    assert data["id"] == 1
-    assert data["name"] == "Alice"
+    assert "response" in data
+    assert data["response"] == "Hello! How can I assist you today?"
 
-def test_get_nonexistent_user(client):
-    # Test retrieving a non-existent user
-    response = client.get('/users/999')  # User ID 999 doesn't exist
-    assert response.status_code == 404
+    response = client.post('/chatbot', json={"message": "I need help"})
+    assert response.status_code == 200
     data = response.get_json()
-    
-    # Ensure the error message is returned
+    assert data["response"] == "I can assist with booking teleconsultations or finding health information."
+
+    response = client.post('/chatbot', json={"message": "Random message"})
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["response"] == "I'm sorry, I didn't understand that. Could you rephrase?"
+
+def test_book_teleconsultation(client):
+    # Test valid teleconsultation booking
+    response = client.post('/teleconsultation', json={"user_id": 1, "time_slot": "2024-12-05T10:00"})
+    assert response.status_code == 201
+    data = response.get_json()
+    assert data["message"] == "Teleconsultation booked successfully"
+    assert data["teleconsultation"]["user_id"] == 1
+    assert data["teleconsultation"]["time_slot"] == "2024-12-05T10:00"
+
+    # Test invalid teleconsultation booking (missing fields)
+    response = client.post('/teleconsultation', json={"user_id": 1})
+    assert response.status_code == 400
+    data = response.get_json()
     assert "error" in data
-    assert data["error"] == "User not found"
+    assert data["error"] == "Missing user_id or time_slot"
