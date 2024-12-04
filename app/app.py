@@ -1,8 +1,9 @@
 import os
 from flask import Flask, jsonify, request
 from dotenv import load_dotenv
-from app.database import db, reset_test_db
-from models import User, Teleconsultation
+from .database import db, reset_test_db
+from ..models import User, Teleconsultation
+
 
 
 # Load environment variables
