@@ -1,4 +1,4 @@
-from database import Base
+from app.database import db
 from sqlalchemy import Column, Integer, String
 
 class DistributionCenter(Base):
