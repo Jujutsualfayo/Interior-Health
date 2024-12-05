@@ -11,6 +11,8 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     teleconsultations = db.relationship('Teleconsultation', back_populates='user', lazy=True)
+    orders = db.relationship('Order', back_populates='user', lazy=True)
+    chat_histories = db.relationship('ChatHistory', back_populates='user', lazy=True)
 
     def __repr__(self):
         return f"<User {self.name} ({self.role})>"
@@ -22,6 +24,8 @@ class Drug(db.Model):
     description = db.Column(db.String(255), nullable=True)
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False, default=0)
+
+    orders = db.relationship('Order', back_populates='drug', lazy=True)
 
     def __repr__(self):
         return f"<Drug {self.name}, Price: {self.price}, Stock: {self.stock}>"
@@ -36,8 +40,8 @@ class Order(db.Model):
     status = db.Column(db.String(50), nullable=False, default="pending")  # e.g., 'pending', 'shipped', 'delivered'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user = db.relationship('User', backref=db.backref('orders', lazy=True))
-    drug = db.relationship('Drug', backref=db.backref('orders', lazy=True))
+    user = db.relationship('User', back_populates='orders')
+    drug = db.relationship('Drug', back_populates='orders')
 
     def __repr__(self):
         return f"<Order {self.id}, User: {self.user_id}, Drug: {self.drug_id}, Status: {self.status}>"
@@ -47,7 +51,7 @@ class Teleconsultation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     health_worker_id = db.Column(db.Integer, nullable=False)  # Placeholder for health worker relationship
-    time_slot = db.Column(db.String(100), nullable=False)
+    time_slot = db.Column(db.DateTime, nullable=False)  # Changed from string to DateTime
     notes = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -64,8 +68,7 @@ class ChatHistory(db.Model):
     response = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user = db.relationship('User', backref=db.backref('chat_histories', lazy=True))
+    user = db.relationship('User', back_populates='chat_histories')
 
     def __repr__(self):
         return f"<ChatHistory {self.id}, User: {self.user_id}>"
-
