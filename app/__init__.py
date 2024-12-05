@@ -2,7 +2,9 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 
-# Delay the import of db and models
+# Import db 
+from models.database import db
+
 def create_app():
     """App factory function."""
     # Load environment variables
@@ -15,12 +17,12 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', 'sqlite:///test.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Now import db and models here, to avoid circular import
-    from models.database import db
-    from models import User, Product, Order, Payment, Tracking, ChatbotInteraction, Teleconsultation
-
+    # Initialize db here
     db.init_app(app)
 
-    # Initialize 
+    # Now import models here
+    from models import User, Product, Order, Payment, Tracking, ChatbotInteraction, Teleconsultation
+
+    # Initialize any other parts of your app here, like routes or blueprints
 
     return app
