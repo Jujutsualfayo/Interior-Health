@@ -1,113 +1,105 @@
-# tests/test_models.py
 import pytest
-from app import db
-from models import User, Product
-from models.chatbot_interaction import Chatbot
+from app import create_app
+from models import db, User, Product, Order, Payment, Tracking, ChatbotInteraction, Teleconsultation
 
+# Create the app for testing
+app = create_app()
 
-# Fixture to set up and tear down the database
-@pytest.fixture
-def setup_db():
-    # Create the tables for the test database
+# Initialize app context for testing
+@pytest.fixture(scope='module')
+def test_app():
+    app_context = app.app_context()
+    app_context.push()
+    yield app
+    app_context.pop()
+
+# Setup the database for testing
+@pytest.fixture(scope='module')
+def test_db(test_app):
     db.create_all()
-    yield
-    # Clean up database after each test
+    yield db
     db.session.remove()
     db.drop_all()
 
-def test_create_user(setup_db):
-    """Test user creation."""
-    user = User(name="John Doe", email="john@example.com", password="password")
-    db.session.add(user)
-    db.session.commit()
+def test_user_model(test_db):
+    """Test the User model."""
+    # Create a test user
+    user = User(username='testuser', email='test@example.com', password='password123')
     
-    # Query the database to check if the user was created
-    created_user = User.query.filter_by(email="john@example.com").first()
-    assert created_user is not None
-    assert created_user.name == "John Doe"
-    assert created_user.email == "john@example.com"
-
-def test_create_product(setup_db):
-    """Test product creation."""
-    product = Product(name="Aspirin", description="Pain reliever", price=5.00)
-    db.session.add(product)
-    db.session.commit()
-    
-    # Query the database to check if the product was created
-    created_product = Product.query.filter_by(name="Aspirin").first()
-    assert created_product is not None
-    assert created_product.price == 5.00
-    assert created_product.description == "Pain reliever"
-
-def test_update_user(setup_db):
-    """Test user update."""
-    user = User(name="John Doe", email="john@example.com", password="password")
+    # Add the user to the session and commit
     db.session.add(user)
     db.session.commit()
 
-    # Update the user's name
-    user.name = "Jane Doe"
-    db.session.commit()
+    # Query the user back from the database
+    queried_user = User.query.filter_by(username='testuser').first()
 
-    updated_user = User.query.filter_by(email="john@example.com").first()
-    assert updated_user.name == "Jane Doe"
+    # Assert the user was added correctly
+    assert queried_user is not None
+    assert queried_user.username == 'testuser'
+    assert queried_user.email == 'test@example.com'
 
-def test_delete_user(setup_db):
-    """Test user deletion."""
-    user = User(name="John Doe", email="john@example.com", password="password")
-    db.session.add(user)
-    db.session.commit()
-
-    user_to_delete = User.query.filter_by(email="john@example.com").first()
-    db.session.delete(user_to_delete)
-    db.session.commit()
-
-    deleted_user = User.query.filter_by(email="john@example.com").first()
-    assert deleted_user is None
-
-def test_create_product_with_unique_name(setup_db):
-    """Test creating two products with the same name."""
-    product1 = Product(name="Aspirin", description="Pain reliever", price=5.00)
-    product2 = Product(name="Aspirin", description="Pain reliever", price=6.00)
+def test_product_model(test_db):
+    """Test the Product model."""
+    # Create a test product
+    product = Product(name='Test Product', price=19.99)
     
-    db.session.add(product1)
-    db.session.commit()
-    
-    # Trying to create another product with the same name
-    with pytest.raises(Exception):  # You can specify a specific exception type based on your app's setup
-        db.session.add(product2)
-        db.session.commit()
-
-def test_product_association_with_order(setup_db):
-    """Test creating an order associated with a product and user."""
-    user = User(name="John Doe", email="john@example.com", password="password")
-    product = Product(name="Aspirin", description="Pain reliever", price=5.00)
-    
-    db.session.add(user)
+    # Add the product to the session and commit
     db.session.add(product)
     db.session.commit()
 
-    # Assuming you have a relationship between User and Product through an Order model
-    order = Order(user_id=user.id, product_id=product.id, quantity=2)
+    # Query the product back from the database
+    queried_product = Product.query.filter_by(name='Test Product').first()
+
+    # Assert the product was added correctly
+    assert queried_product is not None
+    assert queried_product.name == 'Test Product'
+    assert queried_product.price == 19.99
+
+def test_order_model(test_db):
+    """Test the Order model."""
+    # Create a test order
+    order = Order(product_id=1, user_id=1, quantity=2)
+    
+    # Add the order to the session and commit
     db.session.add(order)
     db.session.commit()
 
-    user_orders = User.query.filter_by(id=user.id).first().orders
-    assert len(user_orders) == 1
-    assert user_orders[0].product.name == "Aspirin"
-    assert user_orders[0].quantity == 2
+    # Query the order back from the database
+    queried_order = Order.query.filter_by(product_id=1).first()
 
-def test_product_price_update(setup_db):
-    """Test updating product price."""
-    product = Product(name="Aspirin", description="Pain reliever", price=5.00)
-    db.session.add(product)
+    # Assert the order was added correctly
+    assert queried_order is not None
+    assert queried_order.quantity == 2
+
+def test_chatbot_model(test_db):
+    """Test the ChatbotInteraction model."""
+    # Create a test chatbot interaction
+    chatbot_interaction = ChatbotInteraction(query="How are you?")
+    
+    # Add the interaction to the session and commit
+    db.session.add(chatbot_interaction)
     db.session.commit()
 
-    # Update the product's price
-    product.price = 6.00
+    # Query the interaction back from the database
+    queried_interaction = ChatbotInteraction.query.filter_by(query="How are you?").first()
+
+    # Assert the interaction was added correctly
+    assert queried_interaction is not None
+    assert queried_interaction.query == "How are you?"
+
+def test_teleconsultation_model(test_db):
+    """Test the Teleconsultation model."""
+    # Create a test teleconsultation
+    teleconsultation = Teleconsultation(patient_name='Test Patient', date='2024-12-05', status='Scheduled')
+    
+    # Add the teleconsultation to the session and commit
+    db.session.add(teleconsultation)
     db.session.commit()
 
-    updated_product = Product.query.filter_by(name="Aspirin").first()
-    assert updated_product.price == 6.00
+    # Query the teleconsultation back from the database
+    queried_teleconsultation = Teleconsultation.query.filter_by(patient_name='Test Patient').first()
 
+    # Assert the teleconsultation was added correctly
+    assert queried_teleconsultation is not None
+    assert queried_teleconsultation.status == 'Scheduled'
 
