@@ -54,13 +54,13 @@ def test_order_model(test_db):
     assert queried_order.quantity == 2
 
 def test_chatbot_model(test_db):
-    """Test the ChatbotInteraction model."""
+     """Test the ChatbotInteraction model."""
     chatbot_interaction = ChatbotInteraction(query="How are you?", response="I'm good, thanks!")
     db.session.add(chatbot_interaction)
     db.session.commit()
     
-    # Fix: Use the column name 'query' directly in the filter
-    queried_interaction = ChatbotInteraction.query.filter(ChatbotInteraction.query == "How are you?").first()
+    # Use db.session.query instead of ChatbotInteraction.query
+    queried_interaction = db.session.query(ChatbotInteraction).filter(ChatbotInteraction.query == "How are you?").first()
 
     assert queried_interaction is not None
     assert queried_interaction.query == "How are you?"
