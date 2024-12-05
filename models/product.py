@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float
-from app.database import db
+from .database import db
+
 
 
 class Product(db.Model):
