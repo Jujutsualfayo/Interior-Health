@@ -1,23 +1,10 @@
-class User:
-    ROLES = ['patient', 'health_worker', 'admin']
+from .database import db
 
-    def __init__(self, name, email, password, role='patient'):
-        if role not in self.ROLES:
-            raise ValueError("Invalid role")
-        self.name = name
-        self.email = email
-        self.password = password
-        self.role = role
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), nullable=False, unique=True)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
 
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "email": self.email,
-            "role": self.role
-        }
-
-    @staticmethod
-    def reset_password(email):
-        """Will be enabling resetting the user's password via email."""
-        print(f"Password reset link sent to {email}")
-
+    def __repr__(self):
+        return f"<User {self.username}>"
