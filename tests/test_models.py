@@ -2,6 +2,7 @@
 import pytest
 from app import db
 from models import User, Product
+from models.chatbot import Chatbot
 
 # Fixture to set up and tear down the database
 @pytest.fixture
