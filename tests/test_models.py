@@ -1,3 +1,4 @@
+import pytest
 from datetime import datetime
 from app import create_app
 from models import db, User, Product, Order, Payment, Tracking, ChatbotInteraction, Teleconsultation
