@@ -18,8 +18,9 @@ def create_app():
     # Initialize db here
     db.init_app(app)
 
-    # Now import models here
-    from models import User, Product, Order, Payment, Tracking, ChatbotInteraction, Teleconsultation
+    # Now import models **after** db initialization
+    with app.app_context():
+        from models import User, Product, Order, Payment, Tracking, ChatbotInteraction, Teleconsultation
 
     # Initialize any other parts of your app here, like routes or blueprints
 
