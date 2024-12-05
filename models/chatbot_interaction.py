@@ -1,4 +1,4 @@
-class Chatbot:
+class ChatbotInteraction:
     @staticmethod
     def get_response(query):
         """Allows for processing chatbot queries."""
