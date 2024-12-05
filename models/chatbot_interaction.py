@@ -7,9 +7,9 @@ class ChatbotInteraction(db.Model):
     """Model for storing chatbot interaction logs."""
     __tablename__ = 'chatbot_interactions'
 
-    id = Column(Integer, primary_key=True)  # Primary key
-    query = Column(Text, nullable=False)  # User query
-    response = Column(Text, nullable=False)  # Chatbot response
+    id = db.Column(db.Integer, primary_key=True)
+    query = db.Column(db.String(255), nullable=False)  # Ensure this field is defined
+    response = db.Column(db.String(255), nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)  # Time of interaction
 
     def __init__(self, query, response, timestamp=None):
