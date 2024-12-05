@@ -58,8 +58,8 @@ def test_chatbot_model(test_db):
     chatbot_interaction = ChatbotInteraction(query="How are you?", response="I'm good, thanks!")
     db.session.add(chatbot_interaction)
     db.session.commit()
-
-    # Fix: Use filter() instead of filter_by for querying by 'query' field
+    
+    # Fix: Use the column name 'query' directly in the filter
     queried_interaction = ChatbotInteraction.query.filter(ChatbotInteraction.query == "How are you?").first()
 
     assert queried_interaction is not None
